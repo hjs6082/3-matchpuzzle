@@ -32,6 +32,7 @@ public class Dot : MonoBehaviour
 
     // 스와이프 각도
     public float swipeAngle = 0;
+    public float swipeResist = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -124,9 +125,12 @@ public class Dot : MonoBehaviour
     // 스와이프 각도를 계산하고 이동 처리 메서드를 호출하는 메서드
     private void CalculateAngle()
     {
-        swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * Mathf.Rad2Deg;
-        swipeAngle = (swipeAngle + 360) % 360; // 각도 범위를 0에서 360도로 매핑
-        MovePieces();
+        if (Mathf.Abs(finalTouchPosition.y - firstTouchPosition.y) > swipeResist || Mathf.Abs(finalTouchPosition.x - firstTouchPosition.x) > swipeResist)
+        {
+            swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * Mathf.Rad2Deg;
+            swipeAngle = (swipeAngle + 360) % 360; // 각도 범위를 0에서 360도로 매핑
+            MovePieces();
+        }
     }
 
     // Dot을 이동시키는 메서드
@@ -171,11 +175,14 @@ public class Dot : MonoBehaviour
         {
             GameObject leftDot1 = board.allDots[column - 1, row];
             GameObject rightDot1 = board.allDots[column + 1, row];
-            if(leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag && leftDot1.tag == rightDot1.tag)
+            if (leftDot1 != null && rightDot1 != null)
             {
-                leftDot1.GetComponent<Dot>().isMatched = true;
-                rightDot1.GetComponent<Dot>().isMatched = true;
-                isMatched = true;
+                if (leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag && leftDot1.tag == rightDot1.tag)
+                {
+                    leftDot1.GetComponent<Dot>().isMatched = true;
+                    rightDot1.GetComponent<Dot>().isMatched = true;
+                    isMatched = true;
+                }
             }
         }
         // 상 하 매치 여부 확인 
@@ -183,11 +190,14 @@ public class Dot : MonoBehaviour
         {
             GameObject downDot1 = board.allDots[column, row - 1];
             GameObject upDot1 = board.allDots[column , row + 1];
-            if (downDot1.tag == this.gameObject.tag && upDot1.tag == this.gameObject.tag && downDot1.tag == upDot1.tag)
+            if (downDot1 != null && upDot1 != null)
             {
-                downDot1.GetComponent<Dot>().isMatched = true;
-                upDot1.GetComponent<Dot>().isMatched = true;
-                isMatched = true;
+                if (downDot1.tag == this.gameObject.tag && upDot1.tag == this.gameObject.tag && downDot1.tag == upDot1.tag)
+                {
+                    downDot1.GetComponent<Dot>().isMatched = true;
+                    upDot1.GetComponent<Dot>().isMatched = true;
+                    isMatched = true;
+                }
             }
         }
     }

@@ -41,13 +41,57 @@ public class Board : MonoBehaviour
 
                 // 현재 위치 (i, j)에 닷을 랜덤으로 선택하여 생성하고 초기화
                 int dotToUse = Random.Range(0, dots.Length);
+                int maxIterations = 0;
+
+                // 이미 일치하는 닷이 있는지 확인하고, 없을 때까지 새로운 닷을 선택
+                while (MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100)
+                {
+                    dotToUse = Random.Range(0, dots.Length);
+                    maxIterations++;
+                    Debug.Log(maxIterations);
+                }
+                maxIterations = 0;
+
+                // 새로운 닷 생성 및 배열에 저장
                 GameObject dot = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                 dot.transform.parent = this.transform;
                 dot.name = "( " + i + ", " + j + " )";
-
-                // 생성된 닷을 배열에 저장
                 allDots[i, j] = dot;
             }
         }
+    }
+
+    // 현재 위치에서 일치하는 닷이 있는지 확인하는 메서드
+    private bool MatchesAt(int column, int row, GameObject piece)
+    {
+        if (column > 1 && row > 1)
+        {
+            if (allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag)
+            {
+                return true;
+            }
+            if (allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag)
+            {
+                return true;
+            }
+        }
+        else if (column <= 1 || row <= 1)
+        {
+            if (row > 1)
+            {
+                if (allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag)
+                {
+                    return true;
+                }
+            }
+            if (column > 1)
+            {
+                if (allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
