@@ -123,25 +123,88 @@ public class Board : MonoBehaviour
         StartCoroutine(DecreaseRowCo());
     }
 
+    // 보드 전체에서 일치하는 닷을 제거한 후 빈 자리를 아래로 내리는 코루틴
     private IEnumerator DecreaseRowCo()
     {
         int nullCount = 0;
-        for(int i = 0; i< width; i++)
+
+        // 모든 열에 대해 반복
+        for (int i = 0; i < width; i++)
         {
-            for(int j = 0; j < height; j++)
+            // 모든 행에 대해 반복
+            for (int j = 0; j < height; j++)
             {
-                if(allDots[i,j] == null)
+                // 현재 위치에 닷이 없다면 nullCount를 증가시킴
+                if (allDots[i, j] == null)
                 {
                     nullCount++;
                 }
-                else if(nullCount > 0)
+                // 현재 위치에 닷이 있고, nullCount가 0보다 크다면
+                else if (nullCount > 0)
                 {
+                    // 현재 위치의 닷을 nullCount만큼 아래로 내리고 해당 위치를 null로 설정
                     allDots[i, j].GetComponent<Dot>().row -= nullCount;
                     allDots[i, j] = null;
                 }
             }
-            nullCount = 0;
+            nullCount = 0; // 다음 열로 이동할 때 nullCount 초기화
         }
-        yield return new WaitForSeconds(.4f);
+
+        yield return new WaitForSeconds(.4f); // 일정 시간 동안 대기
+        StartCoroutine(FillBoardCo()); // 새로운 닷으로 채우는 코루틴 호출
+    }
+
+    // 보드를 채우는 메서드
+    private void RefillBoard()
+    {
+        // 모든 열에 대해 반복
+        for (int i = 0; i < width; i++)
+        {
+            // 모든 행에 대해 반복
+            for (int j = 0; j < height; j++)
+            {
+                // 현재 위치에 닷이 없다면 새로운 닷 생성하여 해당 위치에 저장
+                if (allDots[i, j] == null)
+                {
+                    Vector2 tempPosition = new Vector2(i, j);
+                    int dotToUse = Random.Range(0, dots.Length);
+                    GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
+                    allDots[i, j] = piece;
+                }
+            }
+        }
+    }
+
+    // 보드 전체에서 일치하는 닷이 있는지 확인하는 메서드
+    private bool MatchesOnBoard()
+    {
+        // 모든 열에 대해 반복
+        for (int i = 0; i < width; i++)
+        {
+            // 모든 행에 대해 반복
+            for (int j = 0; j < height; j++)
+            {
+                // 현재 위치에 닷이 있고, 해당 닷이 일치 상태인지 확인
+                if (allDots[i, j] != null && allDots[i, j].GetComponent<Dot>().isMatched)
+                {
+                    return true; // 일치하는 닷이 있다면 true 반환
+                }
+            }
+        }
+        return false; // 일치하는 닷이 없다면 false 반환
+    }
+
+    // 보드를 채우고 일치하는 닷을 제거하는 코루틴
+    private IEnumerator FillBoardCo()
+    {
+        RefillBoard(); // 보드를 채우는 메서드 호출
+        yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
+
+        // 보드에서 여전히 일치하는 닷이 있다면 반복
+        while (MatchesOnBoard())
+        {
+            yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
+            DestroyMatches(); // 일치하는 닷을 제거하는 메서드 호출
+        }
     }
 }
