@@ -12,6 +12,10 @@ public class Dot : MonoBehaviour
     public int targetX;
     public int targetY;
 
+    // 이동 전 위치 기억
+    public int previousColumn;
+    public int previousRow;
+
     // 매치 여부
     public bool isMatched = false;
 
@@ -40,6 +44,8 @@ public class Dot : MonoBehaviour
         targetY = (int)transform.position.y;
         row = targetY;
         column = targetX;
+        previousRow = row;
+        previousColumn = column;
     }
 
     // Update is called once per frame
@@ -81,6 +87,23 @@ public class Dot : MonoBehaviour
             transform.position = tempPosition;
             // 보드에 현재 Dot 위치 갱신
             board.allDots[column, row] = this.gameObject;
+        }
+    }
+
+    // 매치가 되었는지 확인하는 함수 (매치가 안되었을 시 기존 자리로 되돌아간다)
+    public IEnumerator CheckMoveCo()
+    {
+        yield return new WaitForSeconds(.5f);
+        if(otherDot != null)
+        {
+            if(!isMatched && !otherDot.GetComponent<Dot>().isMatched)
+            {
+                otherDot.GetComponent<Dot>().row = row;
+                otherDot.GetComponent<Dot>().column = column;
+                row = previousRow;
+                column = previousColumn;
+            }
+            otherDot = null;
         }
     }
 
@@ -137,6 +160,7 @@ public class Dot : MonoBehaviour
             otherDot.GetComponent<Dot>().row += 1;
             row -= 1;
         }
+        StartCoroutine(CheckMoveCo());
     }
 
     // 타일의 매치 여부를 확인하는 함수
@@ -147,7 +171,7 @@ public class Dot : MonoBehaviour
         {
             GameObject leftDot1 = board.allDots[column - 1, row];
             GameObject rightDot1 = board.allDots[column + 1, row];
-            if(leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag)
+            if(leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag && leftDot1.tag == rightDot1.tag)
             {
                 leftDot1.GetComponent<Dot>().isMatched = true;
                 rightDot1.GetComponent<Dot>().isMatched = true;
@@ -159,7 +183,7 @@ public class Dot : MonoBehaviour
         {
             GameObject downDot1 = board.allDots[column, row - 1];
             GameObject upDot1 = board.allDots[column , row + 1];
-            if (downDot1.tag == this.gameObject.tag && upDot1.tag == this.gameObject.tag)
+            if (downDot1.tag == this.gameObject.tag && upDot1.tag == this.gameObject.tag && downDot1.tag == upDot1.tag)
             {
                 downDot1.GetComponent<Dot>().isMatched = true;
                 upDot1.GetComponent<Dot>().isMatched = true;
