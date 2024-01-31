@@ -66,28 +66,32 @@ public class Dot : MonoBehaviour
         if (Mathf.Abs(targetX - transform.position.x) > .1)
         {
             tempPosition = new Vector2(targetX, transform.position.y);
-            transform.position = Vector2.Lerp(transform.position, tempPosition, .4f);
+            transform.position = Vector2.Lerp(transform.position, tempPosition, .6f);
+            if(board.allDots[column,row] != this.gameObject)
+            {
+                board.allDots[column, row] = this.gameObject;
+            }
         }
         else
         {
             tempPosition = new Vector2(targetX, transform.position.y);
             transform.position = tempPosition;
-            // 보드에 현재 Dot 위치 갱신
-            board.allDots[column, row] = this.gameObject;
         }
 
         // Y 축 이동 처리
         if (Mathf.Abs(targetY - transform.position.y) > .1)
         {
             tempPosition = new Vector2(transform.position.x, targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPosition, .4f);
+            transform.position = Vector2.Lerp(transform.position, tempPosition, .6f);
+            if (board.allDots[column, row] != this.gameObject)
+            {
+                board.allDots[column, row] = this.gameObject;
+            }
         }
         else
         {
             tempPosition = new Vector2(transform.position.x, targetY);
             transform.position = tempPosition;
-            // 보드에 현재 Dot 위치 갱신
-            board.allDots[column, row] = this.gameObject;
         }
     }
 
@@ -103,6 +107,10 @@ public class Dot : MonoBehaviour
                 otherDot.GetComponent<Dot>().column = column;
                 row = previousRow;
                 column = previousColumn;
+            }
+            else
+            {
+                board.DestroyMatches();
             }
             otherDot = null;
         }

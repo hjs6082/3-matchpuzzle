@@ -94,4 +94,54 @@ public class Board : MonoBehaviour
         }
         return false;
     }
+
+    // 일치하는 닷을 제거하는 메서드
+    private void DestroyMatchesAt(int column, int row)
+    {
+        // 해당 위치에 일치하는 닷이 있고, 이미 매치된 상태라면 제거
+        if (allDots[column, row].GetComponent<Dot>().isMatched)
+        {
+            Destroy(allDots[column, row]);
+            allDots[column, row] = null;
+        }
+    }
+
+    // 보드 전체에서 일치하는 닷을 제거하는 메서드
+    public void DestroyMatches()
+    {
+        // 보드의 모든 칸에 대해 반복하며 일치하는 닷을 제거
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allDots[i, j] != null)
+                {
+                    DestroyMatchesAt(i, j);
+                }
+            }
+        }
+        StartCoroutine(DecreaseRowCo());
+    }
+
+    private IEnumerator DecreaseRowCo()
+    {
+        int nullCount = 0;
+        for(int i = 0; i< width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                if(allDots[i,j] == null)
+                {
+                    nullCount++;
+                }
+                else if(nullCount > 0)
+                {
+                    allDots[i, j].GetComponent<Dot>().row -= nullCount;
+                    allDots[i, j] = null;
+                }
+            }
+            nullCount = 0;
+        }
+        yield return new WaitForSeconds(.4f);
+    }
 }
