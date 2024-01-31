@@ -12,6 +12,9 @@ public class Dot : MonoBehaviour
     public int targetX;
     public int targetY;
 
+    // 매치 여부
+    public bool isMatched = false;
+
     // 게임 보드에 대한 참조
     private Board board;
 
@@ -42,6 +45,12 @@ public class Dot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        FindMatches();
+        if(isMatched)
+        {
+            SpriteRenderer mySprite = GetComponent<SpriteRenderer>();
+            mySprite.color = new Color(1f, 1f, 1f, .2f); 
+        }
         // 이동 목표 위치 업데이트
         targetX = column;
         targetY = row;
@@ -127,6 +136,35 @@ public class Dot : MonoBehaviour
             otherDot = board.allDots[column, row - 1];
             otherDot.GetComponent<Dot>().row += 1;
             row -= 1;
+        }
+    }
+
+    // 타일의 매치 여부를 확인하는 함수
+    private void FindMatches()
+    {
+        // 좌 우 매치 여부 확인
+        if(column > 0 && column < board.width - 1)
+        {
+            GameObject leftDot1 = board.allDots[column - 1, row];
+            GameObject rightDot1 = board.allDots[column + 1, row];
+            if(leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag)
+            {
+                leftDot1.GetComponent<Dot>().isMatched = true;
+                rightDot1.GetComponent<Dot>().isMatched = true;
+                isMatched = true;
+            }
+        }
+        // 상 하 매치 여부 확인 
+        if (row > 0 && row < board.height - 1)
+        {
+            GameObject downDot1 = board.allDots[column, row - 1];
+            GameObject upDot1 = board.allDots[column , row + 1];
+            if (downDot1.tag == this.gameObject.tag && upDot1.tag == this.gameObject.tag)
+            {
+                downDot1.GetComponent<Dot>().isMatched = true;
+                upDot1.GetComponent<Dot>().isMatched = true;
+                isMatched = true;
+            }
         }
     }
 }
