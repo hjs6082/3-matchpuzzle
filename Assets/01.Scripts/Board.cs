@@ -2,8 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameState
+{
+    wait,
+    move
+}
+
 public class Board : MonoBehaviour
 {
+    public GameState currenState = GameState.move;
     // 게임 보드의 너비와 높이
     public int width;
     public int height;
@@ -212,5 +219,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
             DestroyMatches(); // 일치하는 닷을 제거하는 메서드 호출
         }
+        yield return new WaitForSeconds(.5f);
+        currenState = GameState.move;
     }
 }
