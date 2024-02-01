@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// 타일이 움직일동안 다른 타일을 건들지 못하게 하기 위한 Enum
 public enum GameState
 {
     wait,
@@ -24,10 +25,12 @@ public class Board : MonoBehaviour
     // 모든 타일과 닷을 저장할 배열들
     private BackgroundTile[,] allTiles;
     public GameObject[,] allDots;
+    private FindMatches findMatches;
 
     // Start is called before the first frame update
     void Start()
     {
+        findMatches = FindObjectOfType<FindMatches>();
         // 배열 초기화 및 보드 설정
         allTiles = new BackgroundTile[width, height];
         allDots = new GameObject[width, height];
@@ -112,6 +115,7 @@ public class Board : MonoBehaviour
         // 해당 위치에 일치하는 닷이 있고, 이미 매치된 상태라면 제거
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
+            findMatches.currentMatches.Remove(allDots[column, row]);
             Destroy(allDots[column, row]);
             allDots[column, row] = null;
         }

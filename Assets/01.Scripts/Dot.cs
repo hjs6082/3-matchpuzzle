@@ -19,6 +19,9 @@ public class Dot : MonoBehaviour
     // 매치 여부
     public bool isMatched = false;
 
+    // 매치 확인에 대한 참조
+    private FindMatches findMatches;
+
     // 게임 보드에 대한 참조
     private Board board;
 
@@ -39,6 +42,7 @@ public class Dot : MonoBehaviour
     {
         // 게임 보드 참조 설정
         board = FindObjectOfType<Board>();
+        findMatches = FindObjectOfType<FindMatches>();
 
         // 초기 위치 설정
         //targetX = (int)transform.position.x;
@@ -52,7 +56,7 @@ public class Dot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        FindMatches();
+        //FindMatches();
         if(isMatched)
         {
             SpriteRenderer mySprite = GetComponent<SpriteRenderer>();
@@ -71,6 +75,7 @@ public class Dot : MonoBehaviour
             {
                 board.allDots[column, row] = this.gameObject;
             }
+            findMatches.FindAllMatches();
         }
         else
         {
@@ -87,6 +92,7 @@ public class Dot : MonoBehaviour
             {
                 board.allDots[column, row] = this.gameObject;
             }
+            findMatches.FindAllMatches();
         }
         else
         {
