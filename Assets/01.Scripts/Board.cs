@@ -21,6 +21,7 @@ public class Board : MonoBehaviour
     // 타일과 닷 프리팹들
     public GameObject tilePrefab;
     public GameObject[] dots;
+    public GameObject destroyEffect;
 
     // 모든 타일과 닷을 저장할 배열들
     private BackgroundTile[,] allTiles;
@@ -116,6 +117,8 @@ public class Board : MonoBehaviour
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
             findMatches.currentMatches.Remove(allDots[column, row]);
+            GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
+            Destroy(particle, .5f);
             Destroy(allDots[column, row]);
             allDots[column, row] = null;
         }
