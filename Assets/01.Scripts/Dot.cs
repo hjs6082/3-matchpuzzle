@@ -41,12 +41,12 @@ public class Dot : MonoBehaviour
         board = FindObjectOfType<Board>();
 
         // 초기 위치 설정
-        targetX = (int)transform.position.x;
-        targetY = (int)transform.position.y;
-        row = targetY;
-        column = targetX;
-        previousRow = row;
-        previousColumn = column;
+        //targetX = (int)transform.position.x;
+        //targetY = (int)transform.position.y;
+        //row = targetY;
+        //column = targetX;
+        //previousRow = row;
+        //previousColumn = column;
     }
 
     // Update is called once per frame
@@ -148,6 +148,8 @@ public class Dot : MonoBehaviour
         if ((swipeAngle > 315 || swipeAngle <= 45) && column < board.width - 1)
         {
             otherDot = board.allDots[column + 1, row];
+            previousRow = row;
+            previousColumn = column;
             otherDot.GetComponent<Dot>().column -= 1;
             column += 1;
         }
@@ -155,6 +157,8 @@ public class Dot : MonoBehaviour
         else if (swipeAngle > 135 && swipeAngle <= 225 && column > 0)
         {
             otherDot = board.allDots[column - 1, row];
+            previousRow = row;
+            previousColumn = column;
             otherDot.GetComponent<Dot>().column += 1;
             column -= 1;
         }
@@ -162,6 +166,8 @@ public class Dot : MonoBehaviour
         else if (swipeAngle > 45 && swipeAngle <= 135 && row < board.height - 1)
         {
             otherDot = board.allDots[column, row + 1];
+            previousRow = row;
+            previousColumn = column;
             otherDot.GetComponent<Dot>().row -= 1;
             row += 1;
         }
@@ -169,6 +175,8 @@ public class Dot : MonoBehaviour
         else if (swipeAngle > 225 && swipeAngle <= 315 && row > 0)
         {
             otherDot = board.allDots[column, row - 1];
+            previousRow = row;
+            previousColumn = column;
             otherDot.GetComponent<Dot>().row += 1;
             row -= 1;
         }

@@ -8,6 +8,8 @@ public class Board : MonoBehaviour
     public int width;
     public int height;
 
+    public int offSet;
+
     // 타일과 닷 프리팹들
     public GameObject tilePrefab;
     public GameObject[] dots;
@@ -34,7 +36,7 @@ public class Board : MonoBehaviour
             for (int j = 0; j < height; j++)
             {
                 // 현재 위치 (i, j)에 타일을 생성하고 초기화
-                Vector2 tempPosition = new Vector2(i, j);
+                Vector2 tempPosition = new Vector2(i, j + offSet);
                 GameObject backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity) as GameObject;
                 backgroundTile.transform.parent = this.transform;
                 backgroundTile.name = "( " + i + ", " + j + " )";
@@ -54,6 +56,8 @@ public class Board : MonoBehaviour
 
                 // 새로운 닷 생성 및 배열에 저장
                 GameObject dot = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
+                dot.GetComponent<Dot>().row = j;
+                dot.GetComponent<Dot>().column = i;
                 dot.transform.parent = this.transform;
                 dot.name = "( " + i + ", " + j + " )";
                 allDots[i, j] = dot;
@@ -166,10 +170,12 @@ public class Board : MonoBehaviour
                 // 현재 위치에 닷이 없다면 새로운 닷 생성하여 해당 위치에 저장
                 if (allDots[i, j] == null)
                 {
-                    Vector2 tempPosition = new Vector2(i, j);
+                    Vector2 tempPosition = new Vector2(i, j + offSet);
                     int dotToUse = Random.Range(0, dots.Length);
                     GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                     allDots[i, j] = piece;
+                    piece.GetComponent<Dot>().row = j;
+                    piece.GetComponent<Dot>().column = i;
                 }
             }
         }
