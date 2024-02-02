@@ -37,9 +37,17 @@ public class Dot : MonoBehaviour
     public float swipeAngle = 0;
     public float swipeResist = 1f;
 
+    // 폭탄 관련 변수
+    public bool isColumnBomb;
+    public bool isRowBomb;
+    public GameObject rowArrow;
+    public GameObject columnArrow;
+
     // Start is called before the first frame update
     void Start()
     {
+        isColumnBomb = false;
+        isRowBomb = false;
         // 게임 보드 참조 설정
         board = FindObjectOfType<Board>();
         findMatches = FindObjectOfType<FindMatches>();
@@ -51,6 +59,17 @@ public class Dot : MonoBehaviour
         //column = targetX;
         //previousRow = row;
         //previousColumn = column;
+    }
+
+    private void OnMouseOver()
+    {
+        //테스트를 위한 코드
+        if(Input.GetMouseButtonDown(1))
+        {
+            isColumnBomb = true;
+            GameObject arrow = Instantiate(columnArrow, transform.position, Quaternion.identity);
+            arrow.transform.parent = this.transform;
+        }
     }
 
     // Update is called once per frame
