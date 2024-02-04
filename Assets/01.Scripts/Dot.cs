@@ -26,7 +26,7 @@ public class Dot : MonoBehaviour
     private Board board;
 
     // 이 Dot과 교환할 다른 Dot을 저장하는 변수
-    private GameObject otherDot;
+    public GameObject otherDot;
 
     // 터치 입력 관련 변수
     private Vector2 firstTouchPosition;
@@ -37,9 +37,17 @@ public class Dot : MonoBehaviour
     public float swipeAngle = 0;
     public float swipeResist = 1f;
 
+    // 폭탄 관련 변수
+    public bool isColumnBomb;
+    public bool isRowBomb;
+    public GameObject rowArrow;
+    public GameObject columnArrow;
+
     // Start is called before the first frame update
     void Start()
     {
+        isColumnBomb = false;
+        isRowBomb = false;
         // 게임 보드 참조 설정
         board = FindObjectOfType<Board>();
         findMatches = FindObjectOfType<FindMatches>();
@@ -57,11 +65,14 @@ public class Dot : MonoBehaviour
     void Update()
     {
         //FindMatches();
+        
+        /*
         if(isMatched)
         {
             SpriteRenderer mySprite = GetComponent<SpriteRenderer>();
             mySprite.color = new Color(1f, 1f, 1f, .2f); 
         }
+        */
         // 이동 목표 위치 업데이트
         targetX = column;
         targetY = row;
@@ -114,13 +125,14 @@ public class Dot : MonoBehaviour
                 row = previousRow;
                 column = previousColumn;
                 yield return new WaitForSeconds(.5f);
+                board.currentDot = null;
                 board.currenState = GameState.move;
             }
             else
             {
                 board.DestroyMatches();
             }
-            otherDot = null;
+            //otherDot = null;
         }
     }
 
@@ -153,6 +165,7 @@ public class Dot : MonoBehaviour
             swipeAngle = (swipeAngle + 360) % 360; // 각도 범위를 0에서 360도로 매핑
             MovePieces();
             board.currenState = GameState.wait;
+            board.currentDot = this;
         }
         else
         {
@@ -235,5 +248,25 @@ public class Dot : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 세로 폭탄 생성
+    public void MakeRowBomb()
+    {
+        isRowBomb = true;
+        GameObject arrow = Instantiate(rowArrow, transform.position, Quaternion.identity);
+        arrow.transform.parent = this.transform;
+        findMatches.currentMatches.Clear();
+        isMatched = false;
+    }
+
+    // 가로 폭탄 생성 
+    public void MakeColumnBomb()
+    {
+        isColumnBomb = true;
+        GameObject arrow = Instantiate(columnArrow, transform.position, Quaternion.identity);
+        arrow.transform.parent = this.transform;
+        findMatches.currentMatches.Clear();
+        isMatched = false;
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class FindMatches : MonoBehaviour
 {
@@ -46,6 +47,31 @@ public class FindMatches : MonoBehaviour
                         // 좌우 방향으로 일치하는 Dot이 있을 경우
                         if (leftDot != null && rightDot != null)
                         {
+                            if(currentDot.GetComponent<Dot>().isRowBomb ||
+                                leftDot.GetComponent<Dot>().isRowBomb ||
+                                rightDot.GetComponent<Dot>().isRowBomb)
+                            {
+                                currentMatches.Union(GetRowPieces(j));
+                            }
+
+                            if(currentDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetColumnPieces(i));
+                            }
+
+
+                            if (leftDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetColumnPieces(i-1));
+                            }
+
+
+                            if (rightDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetColumnPieces(i + 1));
+                            }
+
+
                             if (leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag)
                             {
                                 // 중복 추가 방지를 위한 조건문
@@ -76,6 +102,30 @@ public class FindMatches : MonoBehaviour
                         // 상하 방향으로 일치하는 Dot이 있을 경우
                         if (upDot != null && downDot != null)
                         {
+                            if (currentDot.GetComponent<Dot>().isColumnBomb ||
+                                upDot.GetComponent<Dot>().isColumnBomb ||
+                                downDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetColumnPieces(i));
+                            }
+
+                            if (currentDot.GetComponent<Dot>().isRowBomb)
+                            {
+                                currentMatches.Union(GetRowPieces(j));
+                            }
+
+
+                            if (upDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetRowPieces(j + 1));
+                            }
+
+
+                            if (downDot.GetComponent<Dot>().isColumnBomb)
+                            {
+                                currentMatches.Union(GetRowPieces(j - 1));
+                            }
+
                             if (upDot.tag == currentDot.tag && downDot.tag == currentDot.tag)
                             {
                                 // 중복 추가 방지를 위한 조건문
@@ -100,4 +150,72 @@ public class FindMatches : MonoBehaviour
             }
         }
     }
+
+    List<GameObject> GetColumnPieces(int column)
+    {
+        List<GameObject> dots = new List<GameObject>();
+        for(int i = 0; i < board.height; i++)
+        {
+            if(board.allDots[column,i] != null)
+            {
+                dots.Add(board.allDots[column, i]);
+                board.allDots[column, i].GetComponent<Dot>().isMatched = true;
+            }
+        }
+
+        return dots;
+    }
+
+    List<GameObject> GetRowPieces(int row)
+    {
+        List<GameObject> dots = new List<GameObject>();
+        for (int i = 0; i < board.width; i++)
+        {
+            if (board.allDots[i, row] != null)
+            {
+                dots.Add(board.allDots[i, row]);
+                board.allDots[i, row].GetComponent<Dot>().isMatched = true;
+            }
+        }
+
+        return dots;
+    }
+
+
+    // 폭탄이 있는지 확인하고, 있다면 폭탄을 생성하는 메서드
+    public void CheckBombs()
+    {
+        // 현재 Dot이 존재하고 매치되었는지 확인
+        if (board.currentDot != null)
+        {
+            // 만약 현재 Dot이 매치된 경우
+            if (board.currentDot.isMatched)
+            {
+                // 현재 Dot의 매치 여부를 초기화
+                board.currentDot.isMatched = false;
+
+                // 랜덤으로 폭탄의 종류를 선택
+                int typeOfBomb = Random.Range(0, 100);
+
+                // 50%의 확률로 가로 폭탄 생성, 50%의 확률로 세로 폭탄 생성
+                if (typeOfBomb < 50)
+                {
+                    // 가로 폭탄 생성 함수 호출
+                    board.currentDot.MakeRowBomb();
+                }
+                else if (typeOfBomb >= 50)
+                {
+                    // 세로 폭탄 생성 함수 호출
+                    board.currentDot.MakeColumnBomb();
+                }
+            }
+            // 현재 Dot이 매치되지 않았지만, 다른 Dot이 매치된 경우 (보통은 이어진 폭탄을 생성하기 위함)
+            else if (board.currentDot.otherDot != null)
+            {
+                // 추가적인 기능 또는 처리를 수행할 수 있음
+                // (현재는 빈 상태로 두어 주석이 없습니다)
+            }
+        }
+    }
+
 }
