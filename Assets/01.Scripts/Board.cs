@@ -26,6 +26,7 @@ public class Board : MonoBehaviour
     // 모든 타일과 닷을 저장할 배열들
     private BackgroundTile[,] allTiles;
     public GameObject[,] allDots;
+    public Dot currentDot;
     private FindMatches findMatches;
 
     // Start is called before the first frame update
@@ -116,6 +117,11 @@ public class Board : MonoBehaviour
         // 해당 위치에 일치하는 닷이 있고, 이미 매치된 상태라면 제거
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
+            if(findMatches.currentMatches.Count == 4 || findMatches.currentMatches.Count == 7)
+            {
+                findMatches.CheckBombs();
+                return;
+            }
             findMatches.currentMatches.Remove(allDots[column, row]);
             GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
             Destroy(particle, .5f);
@@ -226,6 +232,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
             DestroyMatches(); // 일치하는 닷을 제거하는 메서드 호출
         }
+        findMatches.currentMatches.Clear();
         yield return new WaitForSeconds(.5f);
         currenState = GameState.move;
     }
