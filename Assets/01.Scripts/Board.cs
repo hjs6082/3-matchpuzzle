@@ -233,6 +233,7 @@ public class Board : MonoBehaviour
             DestroyMatches(); // 일치하는 닷을 제거하는 메서드 호출
         }
         findMatches.currentMatches.Clear();
+        currentDot = null;
         yield return new WaitForSeconds(.5f);
         currenState = GameState.move;
     }

@@ -151,6 +151,23 @@ public class FindMatches : MonoBehaviour
         }
     }
 
+    public void MatchPiecesOfColor(string color)
+    {
+        for(int i = 0; i < board.width; i++)
+        {
+            for(int j = 0; j < board.height; j++)
+            {
+                if(board.allDots[i,j] != null)
+                {
+                    if(board.allDots[i,j].tag == color)
+                    {
+                        board.allDots[i, j].GetComponent<Dot>().isMatched = true;
+                    }
+                }
+            }
+        }
+    }
+
     List<GameObject> GetColumnPieces(int column)
     {
         List<GameObject> dots = new List<GameObject>();
@@ -182,6 +199,7 @@ public class FindMatches : MonoBehaviour
     }
 
 
+    
     // 폭탄이 있는지 확인하고, 있다면 폭탄을 생성하는 메서드
     public void CheckBombs()
     {
@@ -194,6 +212,15 @@ public class FindMatches : MonoBehaviour
                 // 현재 Dot의 매치 여부를 초기화
                 board.currentDot.isMatched = false;
 
+                if(board.currentDot.swipeAngle > 45 && board.currentDot.swipeAngle <= 135 || board.currentDot.swipeAngle > 225 && board.currentDot.swipeAngle <= 315)
+                {
+                    board.currentDot.MakeRowBomb();
+                }
+                else
+                {
+                    board.currentDot.MakeColumnBomb();
+                }
+                /*
                 // 랜덤으로 폭탄의 종류를 선택
                 int typeOfBomb = Random.Range(0, 100);
 
@@ -208,12 +235,41 @@ public class FindMatches : MonoBehaviour
                     // 세로 폭탄 생성 함수 호출
                     board.currentDot.MakeColumnBomb();
                 }
+                */
             }
             // 현재 Dot이 매치되지 않았지만, 다른 Dot이 매치된 경우 (보통은 이어진 폭탄을 생성하기 위함)
             else if (board.currentDot.otherDot != null)
             {
-                // 추가적인 기능 또는 처리를 수행할 수 있음
-                // (현재는 빈 상태로 두어 주석이 없습니다)
+                Dot otherDot = board.currentDot.otherDot.GetComponent<Dot>();
+                if(otherDot.isMatched)
+                {
+                    otherDot.isMatched = false;
+
+                    /*
+                    int typeOfBomb = Random.Range(0, 100);
+
+                    // 50%의 확률로 가로 폭탄 생성, 50%의 확률로 세로 폭탄 생성
+                    if (typeOfBomb < 50)
+                    {
+                        // 가로 폭탄 생성 함수 호출
+                        otherDot.MakeRowBomb();
+                    }
+                    else if (typeOfBomb >= 50)
+                    {
+                        // 세로 폭탄 생성 함수 호출
+                        otherDot.MakeColumnBomb();
+                    }
+                    */
+
+                    if (board.currentDot.swipeAngle > 45 && board.currentDot.swipeAngle <= 135 || board.currentDot.swipeAngle > 225 && board.currentDot.swipeAngle <= 315)
+                    {
+                        otherDot.MakeRowBomb();
+                    }
+                    else
+                    {
+                        otherDot.MakeColumnBomb();
+                    }
+                }
             }
         }
     }
