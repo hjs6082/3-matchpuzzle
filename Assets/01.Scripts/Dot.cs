@@ -250,6 +250,7 @@ public class Dot : MonoBehaviour
         }
     }
 
+    // 气藕 积己 窍绰 何盒 
     // 技肺 气藕 积己
     public void MakeRowBomb()
     {
