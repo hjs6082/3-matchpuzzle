@@ -221,6 +221,7 @@ public class Board : MonoBehaviour
     }
 
     // 보드를 채우고 일치하는 닷을 제거하는 코루틴
+    // TODO : 바로 일치하도록 수정
     private IEnumerator FillBoardCo()
     {
         RefillBoard(); // 보드를 채우는 메서드 호출
