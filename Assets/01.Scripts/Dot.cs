@@ -148,7 +148,7 @@ public class Dot : MonoBehaviour
                 column = previousColumn;
                 yield return new WaitForSeconds(.5f);
                 board.currentDot = null;
-                board.currenState = GameState.move;
+                board.currentState = GameState.move;
             }
             else
             {
@@ -161,7 +161,7 @@ public class Dot : MonoBehaviour
     // 마우스가 눌렸을 때 호출되는 메서드
     private void OnMouseDown()
     {
-        if (board.currenState == GameState.move)
+        if (board.currentState == GameState.move)
         {
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
@@ -170,7 +170,7 @@ public class Dot : MonoBehaviour
     // 마우스에서 손을 땔 때 호출되는 메서드
     private void OnMouseUp()
     {
-        if (board.currenState == GameState.move)
+        if (board.currentState == GameState.move)
         {
             finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             // 스와이프 각도 계산 및 처리
@@ -186,12 +186,12 @@ public class Dot : MonoBehaviour
             swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * Mathf.Rad2Deg;
             swipeAngle = (swipeAngle + 360) % 360; // 각도 범위를 0에서 360도로 매핑
             MovePieces();
-            board.currenState = GameState.wait;
+            board.currentState = GameState.wait;
             board.currentDot = this;
         }
         else
         {
-            board.currenState = GameState.move;
+            board.currentState = GameState.move;
         }
     }
 

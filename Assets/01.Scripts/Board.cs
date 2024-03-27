@@ -11,7 +11,7 @@ public enum GameState
 
 public class Board : MonoBehaviour
 {
-    public GameState currenState = GameState.move;
+    public GameState currentState = GameState.move;
     // 게임 보드의 너비와 높이
     public int width;
     public int height;
@@ -29,35 +29,32 @@ public class Board : MonoBehaviour
     public Dot currentDot;
     private FindMatches findMatches;
 
-    // Start is called before the first frame update
+    // 게임이 시작하기 전에 호출되는 함수
     void Start()
     {
-        findMatches = FindObjectOfType<FindMatches>();
-        // 배열 초기화 및 보드 설정
-        allTiles = new BackgroundTile[width, height];
-        allDots = new GameObject[width, height];
-        SetUp();
+        findMatches = FindObjectOfType<FindMatches>(); // FindMatches 타입의 객체를 찾아서 할당
+        allTiles = new BackgroundTile[width, height]; // 배경 타일 배열을 초기화
+        allDots = new GameObject[width, height]; // Dot 게임 오브젝트 배열을 초기화
+        SetUp(); // 게임 보드 설정 함수 호출
     }
 
-    // 보드 설정 메서드
+    // 게임 보드를 설정하는 함수
     private void SetUp()
     {
-        // 보드의 모든 칸에 대해 반복
+        // 보드의 모든 위치에 대해 반복
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                // 현재 위치 (i, j)에 타일을 생성하고 초기화
-                Vector2 tempPosition = new Vector2(i, j + offSet);
-                GameObject backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity) as GameObject;
-                backgroundTile.transform.parent = this.transform;
-                backgroundTile.name = "( " + i + ", " + j + " )";
+                Vector2 tempPosition = new Vector2(i, j + offSet); // Dot을 배치할 위치 계산
+                GameObject backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity) as GameObject; // 배경 타일 생성
+                backgroundTile.transform.parent = this.transform; // 배경 타일의 부모를 현재 객체로 설정
+                backgroundTile.name = "( " + i + ", " + j + " )"; // 타일의 이름 설정
 
-                // 현재 위치 (i, j)에 닷을 랜덤으로 선택하여 생성하고 초기화
-                int dotToUse = Random.Range(0, dots.Length);
+                int dotToUse = Random.Range(0, dots.Length); // 사용할 Dot의 인덱스를 무작위로 선택
+
+                // 생성할 Dot이 이전에 생성한 Dot과 매치되는지 확인하여 매치되지 않을 때까지 반복
                 int maxIterations = 0;
-
-                // 이미 일치하는 닷이 있는지 확인하고, 없을 때까지 새로운 닷을 선택
                 while (MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100)
                 {
                     dotToUse = Random.Range(0, dots.Length);
@@ -66,74 +63,64 @@ public class Board : MonoBehaviour
                 }
                 maxIterations = 0;
 
-                // 새로운 닷 생성 및 배열에 저장
+                // Dot 게임 오브젝트 생성 및 설정
                 GameObject dot = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                 dot.GetComponent<Dot>().row = j;
                 dot.GetComponent<Dot>().column = i;
                 dot.transform.parent = this.transform;
                 dot.name = "( " + i + ", " + j + " )";
-                allDots[i, j] = dot;
+                allDots[i, j] = dot; // 생성된 Dot을 배열에 저장
             }
         }
     }
 
-    // 현재 위치에서 일치하는 닷이 있는지 확인하는 메서드
+
+    // 특정 위치에서 매치가 있는지 확인하는 함수
     private bool MatchesAt(int column, int row, GameObject piece)
     {
+        // 주어진 위치의 양 옆이나 위아래에 같은 태그를 가진 Dot이 2개 있는지 확인
         if (column > 1 && row > 1)
         {
-            if (allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag)
-            {
-                return true;
-            }
-            if (allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag)
+            if (allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag ||
+                allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag)
             {
                 return true;
             }
         }
         else if (column <= 1 || row <= 1)
         {
-            if (row > 1)
+            if (row > 1 && allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag ||
+                column > 1 && allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag)
             {
-                if (allDots[column, row - 1].tag == piece.tag && allDots[column, row - 2].tag == piece.tag)
-                {
-                    return true;
-                }
-            }
-            if (column > 1)
-            {
-                if (allDots[column - 1, row].tag == piece.tag && allDots[column - 2, row].tag == piece.tag)
-                {
-                    return true;
-                }
+                return true;
             }
         }
-        return false;
+        return false; // 매치가 없으면 false 반환
     }
 
-    // 일치하는 닷을 제거하는 메서드
+    // 특정 위치의 매치된 Dot을 제거하는 함수
     private void DestroyMatchesAt(int column, int row)
     {
-        // 해당 위치에 일치하는 닷이 있고, 이미 매치된 상태라면 제거
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
-            if(findMatches.currentMatches.Count == 4 || findMatches.currentMatches.Count == 7)
+            // 매치된 Dot이 특정 개수에 도달하면 폭탄 체크 함수 호출
+            if (findMatches.currentMatches.Count == 4 || findMatches.currentMatches.Count == 7)
             {
                 findMatches.CheckBombs();
-                return;
             }
-            findMatches.currentMatches.Remove(allDots[column, row]);
+
+            // 파괴 효과 생성
             GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
-            Destroy(particle, .5f);
-            Destroy(allDots[column, row]);
-            allDots[column, row] = null;
+            Destroy(particle, .5f); // 파티클 효과를 0.5초 후에 제거
+            Destroy(allDots[column, row]); // 해당 Dot 제거
+            allDots[column, row] = null; // 배열에서도 해당 위치의 Dot을 null로 설정
         }
     }
 
-    // 보드 전체에서 일치하는 닷을 제거하는 메서드
+    // 보드에서 매치된 모든 Dots를 제거하는 함수
     public void DestroyMatches()
     {
-        // 보드의 모든 칸에 대해 반복하며 일치하는 닷을 제거
+        // 보드 전체를 순회하며 매치된 Dot이 있으면 제거
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -144,97 +131,88 @@ public class Board : MonoBehaviour
                 }
             }
         }
-        StartCoroutine(DecreaseRowCo());
+        findMatches.currentMatches.Clear(); // 현재 매치 리스트를 비움
+        StartCoroutine(DecreaseRowCo()); // Dot들을 아래로 이동시키는 코루틴 시작
     }
 
-    // 보드 전체에서 일치하는 닷을 제거한 후 빈 자리를 아래로 내리는 코루틴
+
+    // Dot들을 아래로 이동시키는 코루틴
     private IEnumerator DecreaseRowCo()
     {
-        int nullCount = 0;
-
-        // 모든 열에 대해 반복
+        int nullCount = 0; // null인 Dot의 수를 세는 변수
         for (int i = 0; i < width; i++)
         {
-            // 모든 행에 대해 반복
             for (int j = 0; j < height; j++)
             {
-                // 현재 위치에 닷이 없다면 nullCount를 증가시킴
-                if (allDots[i, j] == null)
+                if (allDots[i, j] == null) // 만약 Dot이 null이면
                 {
-                    nullCount++;
+                    nullCount++; // null 카운트 증가
                 }
-                // 현재 위치에 닷이 있고, nullCount가 0보다 크다면
-                else if (nullCount > 0)
+                else if (nullCount > 0) // null이 아니고, null 카운트가 0보다 크면
                 {
-                    // 현재 위치의 닷을 nullCount만큼 아래로 내리고 해당 위치를 null로 설정
-                    allDots[i, j].GetComponent<Dot>().row -= nullCount;
-                    allDots[i, j] = null;
+                    allDots[i, j].GetComponent<Dot>().row -= nullCount; // Dot을 아래로 이동
+                    allDots[i, j] = null; // 이동 후의 위치를 null로 설정
                 }
             }
-            nullCount = 0; // 다음 열로 이동할 때 nullCount 초기화
+            nullCount = 0; // 다음 열로 넘어갈 때 null 카운트 초기화
         }
-
-        yield return new WaitForSeconds(.4f); // 일정 시간 동안 대기
-        StartCoroutine(FillBoardCo()); // 새로운 닷으로 채우는 코루틴 호출
+        yield return new WaitForSeconds(.4f); // 0.4초 대기
+        StartCoroutine(FillBoardCo()); // 보드를 다시 채우는 코루틴 시작
     }
 
-    // 보드를 채우는 메서드
+
+    // 보드를 다시 채우는 함수
     private void RefillBoard()
     {
-        // 모든 열에 대해 반복
         for (int i = 0; i < width; i++)
         {
-            // 모든 행에 대해 반복
             for (int j = 0; j < height; j++)
             {
-                // 현재 위치에 닷이 없다면 새로운 닷 생성하여 해당 위치에 저장
-                if (allDots[i, j] == null)
+                if (allDots[i, j] == null) // 만약 Dot이 null이라면
                 {
-                    Vector2 tempPosition = new Vector2(i, j + offSet);
-                    int dotToUse = Random.Range(0, dots.Length);
-                    GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
-                    allDots[i, j] = piece;
-                    piece.GetComponent<Dot>().row = j;
-                    piece.GetComponent<Dot>().column = i;
+                    Vector2 tempPosition = new Vector2(i, j + offSet); // 새로운 Dot의 위치 계산
+                    int dotToUse = Random.Range(0, dots.Length); // 사용할 Dot의 인덱스 무작위 선택
+                    GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity); // Dot 생성
+                    allDots[i, j] = piece; // 생성된 Dot을 배열에 저장
+                    piece.GetComponent<Dot>().row = j; // Dot의 행 설정
+                    piece.GetComponent<Dot>().column = i; // Dot의 열 설정
                 }
             }
         }
     }
 
-    // 보드 전체에서 일치하는 닷이 있는지 확인하는 메서드
+    // 보드에 매치가 있는지 확인하는 함수
     private bool MatchesOnBoard()
     {
-        // 모든 열에 대해 반복
         for (int i = 0; i < width; i++)
         {
-            // 모든 행에 대해 반복
             for (int j = 0; j < height; j++)
             {
-                // 현재 위치에 닷이 있고, 해당 닷이 일치 상태인지 확인
-                if (allDots[i, j] != null && allDots[i, j].GetComponent<Dot>().isMatched)
+                if (allDots[i, j] != null && allDots[i, j].GetComponent<Dot>().isMatched) // 매치된 Dot이 있는지 확인
                 {
-                    return true; // 일치하는 닷이 있다면 true 반환
+                    return true; // 매치가 있다면 true 반환
                 }
             }
         }
-        return false; // 일치하는 닷이 없다면 false 반환
+        return false; // 매치가 없다면 false 반환
     }
 
-    // 보드를 채우고 일치하는 닷을 제거하는 코루틴
+
+    // 보드를 다시 채우고 매치를 확인하는 코루틴
     private IEnumerator FillBoardCo()
     {
-        RefillBoard(); // 보드를 채우는 메서드 호출
-        yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
+        RefillBoard(); // 보드를 다시 채움
+        yield return new WaitForSeconds(.5f); // 약간의 딜레이를 준 후
 
-        // 보드에서 여전히 일치하는 닷이 있다면 반복
+        // 보드 상의 매치들을 처리하는 동안 반복
         while (MatchesOnBoard())
         {
-            yield return new WaitForSeconds(.5f); // 일정 시간 동안 대기
-            DestroyMatches(); // 일치하는 닷을 제거하는 메서드 호출
+            yield return new WaitForSeconds(.5f); // 매치가 처리되는 동안 기다림
+            DestroyMatches(); // 매치된 Dot들을 파괴
         }
-        findMatches.currentMatches.Clear();
-        currentDot = null;
-        yield return new WaitForSeconds(.5f);
-        currenState = GameState.move;
+        findMatches.currentMatches.Clear(); // 현재 매치 목록을 클리어
+        currentDot = null; // 현재 선택된 Dot을 리셋
+        yield return new WaitForSeconds(.5f); // 추가적인 딜레이 후
+        currentState = GameState.move; // 게임 상태를 '움직임'으로 변경
     }
 }
