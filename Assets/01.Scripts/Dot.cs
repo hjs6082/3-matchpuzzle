@@ -38,10 +38,12 @@ public class Dot : MonoBehaviour
     public float swipeResist = 1f;
 
     // 폭탄 관련 변수
+    public bool isColorBomb;
     public bool isColumnBomb;
     public bool isRowBomb;
     public GameObject rowArrow;
     public GameObject columnArrow;
+    public GameObject colorBomb;
 
     // Start is called before the first frame update
     void Start()
@@ -59,6 +61,16 @@ public class Dot : MonoBehaviour
         //column = targetX;
         //previousRow = row;
         //previousColumn = column;
+    }
+
+    private void OnMouseOver()
+    {
+        if(Input.GetMouseButtonDown(1))
+        {
+            isColorBomb = true;
+            GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
+            color.transform.parent = this.transform;
+        }
     }
 
     // Update is called once per frame
@@ -115,6 +127,16 @@ public class Dot : MonoBehaviour
     // 매치가 되었는지 확인하는 함수 (매치가 안되었을 시 기존 자리로 되돌아간다)
     public IEnumerator CheckMoveCo()
     {
+        if(isColorBomb)
+        {
+            findMatches.MatchPiecesOfColor(otherDot.tag);
+            isMatched = true;
+        }
+        else if(otherDot.GetComponent<Dot>().isColorBomb)
+        {
+            findMatches.MatchPiecesOfColor(this.gameObject.tag);
+            otherDot.GetComponent<Dot>().isMatched = true;
+        }
         yield return new WaitForSeconds(.5f);
         if(otherDot != null)
         {
@@ -126,7 +148,7 @@ public class Dot : MonoBehaviour
                 column = previousColumn;
                 yield return new WaitForSeconds(.5f);
                 board.currentDot = null;
-                board.currenState = GameState.move;
+                board.currentState = GameState.move;
             }
             else
             {
@@ -139,7 +161,7 @@ public class Dot : MonoBehaviour
     // 마우스가 눌렸을 때 호출되는 메서드
     private void OnMouseDown()
     {
-        if (board.currenState == GameState.move)
+        if (board.currentState == GameState.move)
         {
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
@@ -148,7 +170,7 @@ public class Dot : MonoBehaviour
     // 마우스에서 손을 땔 때 호출되는 메서드
     private void OnMouseUp()
     {
-        if (board.currenState == GameState.move)
+        if (board.currentState == GameState.move)
         {
             finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             // 스와이프 각도 계산 및 처리
@@ -164,12 +186,12 @@ public class Dot : MonoBehaviour
             swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * Mathf.Rad2Deg;
             swipeAngle = (swipeAngle + 360) % 360; // 각도 범위를 0에서 360도로 매핑
             MovePieces();
-            board.currenState = GameState.wait;
+            board.currentState = GameState.wait;
             board.currentDot = this;
         }
         else
         {
-            board.currenState = GameState.move;
+            board.currentState = GameState.move;
         }
     }
 
