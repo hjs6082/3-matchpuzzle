@@ -12,6 +12,11 @@ TagManager:
   - Salmon Dot
   - Teal Dot
   - Yellow Dot
+  - BlueFruit
+  - GreenFruit
+  - OrangeFruit
+  - RedFruit
+  - YellowFruit
   layers:
   - Default
   - TransparentFX
