@@ -131,6 +131,7 @@ public class Board : MonoBehaviour
                 }
             }
         }
+        GameManager.instance.score += 30;
         findMatches.currentMatches.Clear(); // 현재 매치 리스트를 비움
         StartCoroutine(DecreaseRowCo()); // Dot들을 아래로 이동시키는 코루틴 시작
     }
