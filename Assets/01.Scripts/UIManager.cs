@@ -5,6 +5,7 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    //인스턴스 선언
     public static UIManager instance;
     [SerializeField]
     private TextMeshProUGUI turnText;
