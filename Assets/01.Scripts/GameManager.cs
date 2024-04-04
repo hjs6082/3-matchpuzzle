@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        //인스턴스 선언
         instance = this;
     }
 }
