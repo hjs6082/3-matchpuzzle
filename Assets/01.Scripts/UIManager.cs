@@ -21,7 +21,6 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //턴, 스코어 업데이트
         turnText.text = GameManager.instance.turn.ToString();
         scoreText.text = GameManager.instance.score.ToString();
     }
