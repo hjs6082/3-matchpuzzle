@@ -13,16 +13,4 @@ public class GameManager : MonoBehaviour
         //인스턴스 선언
         instance = this;
     }
-
-    public int GetScore()
-    {
-        return score;
-    }
-
-    public int GetTrun()
-    {
-        return turn;
-    }
-
-
 }
